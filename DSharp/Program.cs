@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Xml;
+using System.Text;
 
 namespace DSharp
 {
@@ -10,26 +10,36 @@ namespace DSharp
         static void Main(string[] args)
         {
             var source = @"
-using System;
+            using System;
 
-namespace DSharp
-{
-    class Program
+            namespace DSharp
     {
-        static void Main(string[] args)
+        class Program
         {
-            Console.WriteLine(""Hello World!"");
+            static void Main(string[] args)
+            {
+                Console.WriteLine(""Hello World!"");
+            }
         }
     }
-}
-";
+            ";
+
+            var x = "asd";
+
+            //var foo = new T();
+            //var fF = foo.F.F.F;
 
             var scanner = new Scanner(source);
             var parser = new Parser(scanner.Scan());
-            parser.Parse();
+            var tree = parser.Parse();
 
             Console.WriteLine("Hello World!");
         }
 
+    }
+
+    class T
+    {
+        public T F { get; }
     }
 }

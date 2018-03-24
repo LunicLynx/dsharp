@@ -48,6 +48,8 @@ namespace DSharp
                 }
                 _currentTokenStart = _index;
             }
+
+            yield return new Token(_currentTokenStart, _index, TokenType.EndOfFile, string.Empty);
         }
 
         private static bool IsWhiteSpace(char c)

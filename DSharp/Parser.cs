@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -14,10 +15,111 @@ namespace DSharp
             _tokens = tokens.ToList();
         }
 
-        public void Parse()
+        public SyntaxNode Parse()
         {
-            var unitNode = ParseUnit();
+            return ParseUnit();
         }
+
+
+        private Statement ParseStatement()
+        {
+            return ParseExpressionStatement();
+
+        }
+
+        private ExpressionStatement ParseExpressionStatement()
+        {
+            var syntaxNode = ParseExpression(new[] { TokenType.SemiColon });
+            var semiColonToken = CurrentToken;
+            NextToken();
+            return new ExpressionStatement(syntaxNode);
+        }
+
+        private SyntaxNode ParseExpression(TokenType[] endTypes)
+        {
+            SyntaxNode result = null;
+            while (true)
+            {
+                var tokenType = CurrentToken.TokenType;
+                switch (tokenType)
+                {
+                    case TokenType.Dot:
+                        var dotToken = CurrentToken;
+                        NextToken();
+                        var identifierToken = new NameSyntaxNode(CurrentToken);
+                        NextToken();
+                        result = new MemberReferenceExpression(result, dotToken, identifierToken);
+                        break;
+                    case TokenType.LeftParanthese:
+                        // if(result != null)
+                        result = ParseArgumentList();
+                        break;
+                    case TokenType.Identifier:
+                        result = new NameSyntaxNode(CurrentToken);
+                        NextToken();
+                        break;
+                    case TokenType.StringLiteral:
+                        result = new StringLiteral(CurrentToken);
+                        NextToken();
+                        break;
+                }
+
+                if (endTypes.Contains(tokenType))
+                    break;
+                //if (tokenType == TokenType.SemiColon)
+                //break;
+            }
+            return result;
+        }
+
+        private SyntaxNode ParseArgumentList()
+        {
+            var args = new List<object>();
+            var leftParantheseToken = CurrentToken;
+            NextToken();
+
+            args.Add(leftParantheseToken);
+
+            while (CurrentToken.TokenType != TokenType.RightParanthese)
+            {
+                //if(CurrentToken.TokenType == TokenType.Comma)
+                args.Add(ParseExpression(new [] {/*TokenType.Comma,*/ TokenType.RightParanthese}));
+            }
+
+            var rightParantheseToken = CurrentToken;
+            NextToken();
+            args.Add(rightParantheseToken);
+
+            //return (ArgumentListNode)Activator.CreateInstance(typeof(ArgumentListNode), args.ToArray());
+            return new ArgumentListNode(args.ToArray());
+        }
+
+        private bool IsInvokeExpression(Stack<object> stack)
+        {
+            var objects = stack.ToArray();
+            return
+                objects.Length >= 2 &&
+                objects[0] is Token leftParantheseToken && leftParantheseToken.TokenType == TokenType.LeftParanthese &&
+                objects[1] is SyntaxNode;
+        }
+
+        private bool IsIdentifier(Stack<object> stack)
+        {
+            return stack.Peek() is Token token && token.TokenType == TokenType.Identifier;
+        }
+
+        private bool IsMemberReference(Stack<object> stack)
+        {
+
+            var objects = stack.ToArray();
+
+            return
+                objects.Length >= 3 &&
+                (objects[0] is NameSyntaxNode /* || Expression */) &&
+                objects[1] is Token dotToken && dotToken.TokenType == TokenType.Dot &&
+                objects[2] is NameSyntaxNode;
+        }
+
 
         private (IList<UsingNode> usings, IList<SyntaxNode> members) ParseNamespaceBody()
         {
@@ -173,11 +275,6 @@ namespace DSharp
             return new BlockStatement(leftBraceToken, statements, rightBraceToken);
         }
 
-        private Statement ParseStatement()
-        {
-            return null;
-        }
-
         private object ParseParameterList()
         {
             var leftParentheseToken = CurrentToken;
@@ -281,89 +378,4 @@ namespace DSharp
             return result;
         }
     }
-
-    internal class BlockStatement
-    {
-        public Token LeftBraceToken { get; }
-
-        public List<Statement> Statements { get; }
-
-        public Token RightBraceToken { get; }
-
-        public BlockStatement(Token leftBraceToken, List<Statement> statements, Token rightBraceToken)
-        {
-            LeftBraceToken = leftBraceToken;
-            Statements = statements;
-            RightBraceToken = rightBraceToken;
-        }
-    }
-
-    internal class Statement
-    {
-    }
-
-    internal class MethodDeclarationNode : SyntaxNode
-    {
-        public Token ModifierToken { get; }
-
-        public SyntaxNode TypeName { get; }
-
-        public Token IdentifierToken { get; }
-
-        public object ParameterList { get; }
-
-        public BlockStatement Body { get; }
-
-        public MethodDeclarationNode(Token modifierToken, SyntaxNode typeName, Token identifierToken, object parameterList, BlockStatement body)
-        {
-            ModifierToken = modifierToken;
-            TypeName = typeName;
-            IdentifierToken = identifierToken;
-            ParameterList = parameterList;
-            Body = body;
-            throw new System.NotImplementedException();
-        }
-    }
-
-    internal class ArrayTypeNode : SyntaxNode
-    {
-        public SyntaxNode TypeName { get; }
-
-        public Token LeftBracketNode { get; }
-
-        public Token RightBracketNode { get; }
-
-        public ArrayTypeNode(SyntaxNode typeName, Token leftBracketNode, Token rightBracketNode)
-        {
-            TypeName = typeName;
-            LeftBracketNode = leftBracketNode;
-            RightBracketNode = rightBracketNode;
-        }
-    }
-
-    internal class KeywordTypeNode : NameSyntaxNode
-    {
-        public KeywordTypeNode(Token keywordTypeToken) : base(keywordTypeToken)
-        {
-
-        }
-    }
-
-    internal class ParameterListSyntax
-    {
-        public Token LeftParentheseToken { get; }
-
-        public List<SyntaxNode> Parameters { get; }
-
-        public Token RightParentheseToken { get; }
-
-        public ParameterListSyntax(Token leftParentheseToken, List<SyntaxNode> parameters, Token rightParentheseToken)
-        {
-            LeftParentheseToken = leftParentheseToken;
-            Parameters = parameters;
-            RightParentheseToken = rightParentheseToken;
-        }
-    }
-
-    
 }

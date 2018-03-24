@@ -2,7 +2,7 @@
 
 namespace DSharp
 {
-    class SyntaxNode
+    public class SyntaxNode
     {
         public IList<SyntaxNode> Children { get; } = new List<SyntaxNode>();
     }
