@@ -33,6 +33,9 @@ namespace DSharp
             var parser = new Parser(scanner.Scan());
             var tree = parser.Parse();
 
+            // create semantic model
+
+
             Console.WriteLine("Hello World!");
         }
 

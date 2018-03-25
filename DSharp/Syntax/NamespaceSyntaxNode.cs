@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DSharp
+namespace DSharp.Syntax
 {
     class NamespaceSyntaxNode : SyntaxNode
     {

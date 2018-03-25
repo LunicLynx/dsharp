@@ -1,4 +1,4 @@
-﻿namespace DSharp
+﻿namespace DSharp.Syntax
 {
     class UsingNode : SyntaxNode
     {
