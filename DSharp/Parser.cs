@@ -22,18 +22,18 @@ namespace DSharp
         }
 
 
-        private Statement ParseStatement()
+        private StatementSyntax ParseStatement()
         {
             return ParseExpressionStatement();
 
         }
 
-        private ExpressionStatement ParseExpressionStatement()
+        private ExpressionStatementSyntax ParseExpressionStatement()
         {
             var syntaxNode = ParseExpression(new[] { TokenType.SemiColon });
             var semiColonToken = CurrentToken;
             NextToken();
-            return new ExpressionStatement(syntaxNode);
+            return new ExpressionStatementSyntax(syntaxNode);
         }
 
         private SyntaxNode ParseExpression(TokenType[] endTypes)
@@ -49,7 +49,7 @@ namespace DSharp
                         NextToken();
                         var identifierToken = new NameSyntaxNode(CurrentToken);
                         NextToken();
-                        result = new MemberReferenceExpression(result, dotToken, identifierToken);
+                        result = new MemberReferenceExpressionSyntax(result, dotToken, identifierToken);
                         break;
                     case TokenType.LeftParanthese:
                         // if(result != null)
@@ -60,7 +60,7 @@ namespace DSharp
                         NextToken();
                         break;
                     case TokenType.StringLiteral:
-                        result = new StringLiteral(CurrentToken);
+                        result = new StringLiteralSyntax(CurrentToken);
                         NextToken();
                         break;
                 }
@@ -258,12 +258,12 @@ namespace DSharp
             return new MethodDeclarationNode(modifierToken, typeName, identifierToken, parameterList, body);
         }
 
-        private BlockStatement ParseBlock()
+        private BlockStatementSyntax ParseBlock()
         {
             var leftBraceToken = CurrentToken;
             NextToken();
 
-            var statements = new List<Statement>();
+            var statements = new List<StatementSyntax>();
 
             while (CurrentToken.TokenType != TokenType.RightBrace)
             {
@@ -273,7 +273,7 @@ namespace DSharp
 
             var rightBraceToken = CurrentToken;
             NextToken();
-            return new BlockStatement(leftBraceToken, statements, rightBraceToken);
+            return new BlockStatementSyntax(leftBraceToken, statements, rightBraceToken);
         }
 
         private object ParseParameterList()

@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class Statement
+    internal class StatementSyntax
     {
     }
 }

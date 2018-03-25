@@ -1,10 +1,10 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class ExpressionStatement : Statement
+    internal class ExpressionStatementSyntax : StatementSyntax
     {
         public SyntaxNode Expression { get; }
 
-        public ExpressionStatement(SyntaxNode expression)
+        public ExpressionStatementSyntax(SyntaxNode expression)
         {
             Expression = expression;
         }

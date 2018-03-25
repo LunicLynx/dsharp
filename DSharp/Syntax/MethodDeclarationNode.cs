@@ -10,9 +10,9 @@
 
         public object ParameterList { get; }
 
-        public BlockStatement Body { get; }
+        public BlockStatementSyntax Body { get; }
 
-        public MethodDeclarationNode(Token modifierToken, SyntaxNode typeName, Token identifierToken, object parameterList, BlockStatement body)
+        public MethodDeclarationNode(Token modifierToken, SyntaxNode typeName, Token identifierToken, object parameterList, BlockStatementSyntax body)
         {
             ModifierToken = modifierToken;
             TypeName = typeName;

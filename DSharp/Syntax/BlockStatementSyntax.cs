@@ -2,15 +2,15 @@
 
 namespace DSharp.Syntax
 {
-    internal class BlockStatement
+    internal class BlockStatementSyntax
     {
         public Token LeftBraceToken { get; }
 
-        public List<Statement> Statements { get; }
+        public List<StatementSyntax> Statements { get; }
 
         public Token RightBraceToken { get; }
 
-        public BlockStatement(Token leftBraceToken, List<Statement> statements, Token rightBraceToken)
+        public BlockStatementSyntax(Token leftBraceToken, List<StatementSyntax> statements, Token rightBraceToken)
         {
             LeftBraceToken = leftBraceToken;
             Statements = statements;

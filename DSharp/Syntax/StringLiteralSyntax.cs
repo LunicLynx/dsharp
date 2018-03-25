@@ -1,10 +1,10 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class StringLiteral : SyntaxNode
+    internal class StringLiteralSyntax : SyntaxNode
     {
         public Token CurrentToken { get; }
 
-        public StringLiteral(Token currentToken)
+        public StringLiteralSyntax(Token currentToken)
         {
             CurrentToken = currentToken;
         }
