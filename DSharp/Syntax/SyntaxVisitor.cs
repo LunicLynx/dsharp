@@ -32,5 +32,7 @@
         public abstract void VisitUnit(UnitNode unitNode);
 
         public abstract void VisitUsing(UsingNode usingNode);
+
+        public abstract void VisitInvokeExpression(InvokeExpressionSyntax invokeExpressionSyntax);
     }
 }

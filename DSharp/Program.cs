@@ -44,8 +44,13 @@ namespace DSharp
 
         private static void BuildSemanticModel(SyntaxNode tree)
         {
+            // 1 types and nested types
             var phase1 = new SemanticModelVisitorPhase1();
             tree.Accept(phase1);
+
+            // 2 base types and members
+
+            // 3 function bodies
         }
     }
 

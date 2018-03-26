@@ -2,11 +2,11 @@
 {
     public class StringLiteralSyntax : SyntaxNode
     {
-        public Token CurrentToken { get; }
+        public Token StringLiteralToken { get; }
 
-        public StringLiteralSyntax(Token currentToken)
+        public StringLiteralSyntax(Token stringLiteralToken)
         {
-            CurrentToken = currentToken;
+            StringLiteralToken = stringLiteralToken;
         }
 
         public override void Accept(SyntaxVisitor visitor)

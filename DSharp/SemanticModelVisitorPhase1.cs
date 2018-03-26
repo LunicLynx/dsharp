@@ -1,52 +1,85 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using DSharp.Syntax;
 
 namespace DSharp
 {
+    /// <summary>
+    /// Creates the skeleton of everything that isn't dependend on anything else. So in all only the types
+    /// without any basetypes or members. And also nested types.
+    /// </summary>
     public class SemanticModelVisitorPhase1 : SyntaxVisitor
     {
         private AssemblyModel _model = new AssemblyModel();
         private string _name;
 
-
         public override void VisitArgumentList(ArgumentListNode argumentListNode)
         {
-            throw new NotImplementedException();
+            var arguments = argumentListNode.Children.OfType<SyntaxNode>();
+            foreach (var argument in arguments)
+            {
+                argument.Accept(this);
+            }
         }
 
         public override void VisitArrayType(ArrayTypeNode arrayTypeNode)
         {
-            throw new NotImplementedException();
+            arrayTypeNode.TypeName.Accept(this);
         }
 
         public override void VisitBlockStatement(BlockStatementSyntax blockStatementSyntax)
         {
-            throw new NotImplementedException();
+            foreach (var statement in blockStatementSyntax.Statements)
+            {
+                statement.Accept(this);
+            }
         }
+
+        private ClassModel _parent;
 
         public override void VisitClass(ClassSyntaxNode classSyntaxNode)
         {
-            throw new NotImplementedException();
+            var ns = _name;
+            var name = classSyntaxNode.IdentifierToken.Content;
+
+            var classModel = new ClassModel(ns,name);
+            _parent = classModel;
+            _model.Members.Add(classModel);
+
+            foreach (var member in classSyntaxNode.Members)
+            {
+                member.Accept(this);
+            }
         }
 
         public override void VisitExpressionStatement(ExpressionStatementSyntax expressionStatementSyntax)
         {
-            throw new NotImplementedException();
+            expressionStatementSyntax.Expression.Accept(this);
         }
 
         public override void VisitName(NameSyntaxNode nameSyntaxNode)
         {
-            throw new NotImplementedException();
+            _name = nameSyntaxNode.IdentifierToken.Content;
         }
 
         public override void VisitMemberReferenceExpression(MemberReferenceExpressionSyntax memberReferenceExpressionSyntax)
         {
-            throw new NotImplementedException();
+            memberReferenceExpressionSyntax.Owner.Accept(this);
+            memberReferenceExpressionSyntax.Member.Accept(this);
         }
 
         public override void VisitMethodDeclerationSyntax(MethodDeclarationNode methodDeclarationNode)
         {
-            throw new NotImplementedException();
+            methodDeclarationNode.TypeName.Accept(this);
+
+            var name = methodDeclarationNode.IdentifierToken.Content;
+
+            var model = new MethodModel(name);
+            _parent.Members.Add(model);
+            
+            methodDeclarationNode.ParameterList.Accept(this);
+            methodDeclarationNode.Body.Accept(this);
         }
 
         public override void VisitNamespace(NamespaceSyntaxNode namespaceSyntaxNode)
@@ -64,12 +97,15 @@ namespace DSharp
 
         public override void VisitParameterList(ParameterListSyntax parameterListSyntax)
         {
-            throw new NotImplementedException();
+            foreach (var parameter in parameterListSyntax.Parameters)
+            {
+                parameter.Accept(this);
+            }
         }
 
         public override void VisitParameter(ParameterSyntax parameterSyntax)
         {
-            throw new NotImplementedException();
+            parameterSyntax.TypeName.Accept(this);
         }
 
         public override void VisitQualifiedName(QualifiedNameSyntaxNode qualifiedNameSyntaxNode)
@@ -79,7 +115,9 @@ namespace DSharp
 
         public override void VisitStringLiteral(StringLiteralSyntax stringLiteralSyntax)
         {
-            throw new NotImplementedException();
+            var stringLiteral = stringLiteralSyntax.StringLiteralToken.Content;
+            var str = stringLiteral.Substring(1, stringLiteral.Length -2);
+            new ConstantExpressionModel(str);
         }
 
         public override void VisitUnit(UnitNode unitNode)
@@ -95,9 +133,64 @@ namespace DSharp
             // not important for phase 1
             throw new NotImplementedException();
         }
+
+        public override void VisitInvokeExpression(InvokeExpressionSyntax invokeExpressionSyntax)
+        {
+            invokeExpressionSyntax.Owner.Accept(this);
+            invokeExpressionSyntax.ArgumentList.Accept(this);
+        }
     }
 
     internal class AssemblyModel
     {
+        public IList<ClassModel> Members { get; } = new List<ClassModel>();
+    }
+
+    internal class ClassModel
+    {
+        public string Namespace { get; }
+        public string Name { get; }
+        public string Fullname => Namespace + "." + Name;
+
+        public IList<MemberModel> Members { get; } = new List<MemberModel>();
+
+        public ClassModel(string ns, string name)
+        {
+            Namespace = ns;
+            Name = name;
+        }
+    }
+
+    class ExpressionModel
+    {
+
+    }
+
+    class ConstantExpressionModel : ExpressionModel
+    {
+        public object Value { get; }
+
+        public ConstantExpressionModel(object value)
+        {
+            Value = value;
+        }
+    }
+
+    class MemberModel
+    {
+        public string Name { get; }
+
+        public MemberModel(string name)
+        {
+            Name = name;
+        }
+    }
+
+    class MethodModel : MemberModel
+    {
+        public MethodModel(string name) : base(name)
+        {
+            
+        }
     }
 }

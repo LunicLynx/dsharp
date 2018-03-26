@@ -53,7 +53,8 @@ namespace DSharp
                         break;
                     case TokenType.LeftParanthese:
                         // if(result != null)
-                        result = ParseArgumentList();
+                        var argumentList = ParseArgumentList();
+                        result = new InvokeExpressionSyntax(result, argumentList);
                         break;
                     case TokenType.Identifier:
                         result = new NameSyntaxNode(CurrentToken);
@@ -276,7 +277,7 @@ namespace DSharp
             return new BlockStatementSyntax(leftBraceToken, statements, rightBraceToken);
         }
 
-        private object ParseParameterList()
+        private ParameterListSyntax ParseParameterList()
         {
             var leftParentheseToken = CurrentToken;
             NextToken();

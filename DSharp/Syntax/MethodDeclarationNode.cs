@@ -8,11 +8,11 @@
 
         public Token IdentifierToken { get; }
 
-        public object ParameterList { get; }
+        public ParameterListSyntax ParameterList { get; }
 
         public BlockStatementSyntax Body { get; }
 
-        public MethodDeclarationNode(Token modifierToken, SyntaxNode typeName, Token identifierToken, object parameterList, BlockStatementSyntax body)
+        public MethodDeclarationNode(Token modifierToken, SyntaxNode typeName, Token identifierToken, ParameterListSyntax parameterList, BlockStatementSyntax body)
         {
             ModifierToken = modifierToken;
             TypeName = typeName;

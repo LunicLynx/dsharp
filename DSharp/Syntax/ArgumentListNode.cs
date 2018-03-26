@@ -2,7 +2,8 @@
 {
     public class ArgumentListNode : SyntaxNode
     {
-        public object[] Children { get; }
+        public new object[] Children { get; }
+
         public override void Accept(SyntaxVisitor visitor)
         {
             visitor.VisitArgumentList(this);
