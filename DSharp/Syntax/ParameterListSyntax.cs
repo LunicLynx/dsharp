@@ -2,7 +2,7 @@
 
 namespace DSharp.Syntax
 {
-    internal class ParameterListSyntax
+    public class ParameterListSyntax : SyntaxNode
     {
         public Token LeftParentheseToken { get; }
 
@@ -15,6 +15,11 @@ namespace DSharp.Syntax
             LeftParentheseToken = leftParentheseToken;
             Parameters = parameters;
             RightParentheseToken = rightParentheseToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitParameterList(this);
         }
     }
 }

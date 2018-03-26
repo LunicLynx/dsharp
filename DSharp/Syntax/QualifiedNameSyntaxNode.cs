@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    class QualifiedNameSyntaxNode : NameSyntaxNode
+    public class QualifiedNameSyntaxNode : NameSyntaxNode
     {
         public NameSyntaxNode Qualifier { get; }
         public Token DotToken { get; }
@@ -9,6 +9,11 @@
         {
             Qualifier = qualifier;
             DotToken = dotToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitQualifiedName(this);
         }
     }
 }

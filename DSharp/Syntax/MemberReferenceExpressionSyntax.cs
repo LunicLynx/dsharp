@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class MemberReferenceExpressionSyntax : ExpressionSyntax
+    public class MemberReferenceExpressionSyntax : ExpressionSyntax
     {
         public SyntaxNode Owner { get; }
 
@@ -13,6 +13,11 @@
             Owner = owner;
             DotToken = dotToken;
             Member = member;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitMemberReferenceExpression(this);
         }
     }
 }

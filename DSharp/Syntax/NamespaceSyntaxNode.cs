@@ -2,7 +2,7 @@
 
 namespace DSharp.Syntax
 {
-    class NamespaceSyntaxNode : SyntaxNode
+    public class NamespaceSyntaxNode : SyntaxNode
     {
         public Token NamespaceToken { get; }
 
@@ -24,6 +24,11 @@ namespace DSharp.Syntax
             Usings = usings;
             Members = members;
             RightBraceToken = rightBraceToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitNamespace(this);
         }
     }
 }

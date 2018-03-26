@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class MethodDeclarationNode : SyntaxNode
+    public class MethodDeclarationNode : SyntaxNode
     {
         public Token ModifierToken { get; }
 
@@ -19,6 +19,11 @@
             IdentifierToken = identifierToken;
             ParameterList = parameterList;
             Body = body;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitMethodDeclerationSyntax(this);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    class UsingNode : SyntaxNode
+    public class UsingNode : SyntaxNode
     {
         public Token UsingToken { get; }
 
@@ -12,6 +12,11 @@
             UsingToken = usingToken;
             Name = name;
             SemicolonToken = semicolonToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitUsing(this);
         }
     }
 }

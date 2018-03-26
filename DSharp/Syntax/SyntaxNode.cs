@@ -2,8 +2,10 @@
 
 namespace DSharp.Syntax
 {
-    public class SyntaxNode
+    public abstract class SyntaxNode
     {
         public IList<SyntaxNode> Children { get; } = new List<SyntaxNode>();
+
+        public abstract void Accept(SyntaxVisitor visitor);
     }
 }

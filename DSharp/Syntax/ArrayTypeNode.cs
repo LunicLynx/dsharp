@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class ArrayTypeNode : SyntaxNode
+    public class ArrayTypeNode : SyntaxNode
     {
         public SyntaxNode TypeName { get; }
 
@@ -13,6 +13,11 @@
             TypeName = typeName;
             LeftBracketNode = leftBracketNode;
             RightBracketNode = rightBracketNode;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitArrayType(this);
         }
     }
 }

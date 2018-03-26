@@ -2,7 +2,7 @@
 
 namespace DSharp.Syntax
 {
-    internal class BlockStatementSyntax
+    public class BlockStatementSyntax : SyntaxNode
     {
         public Token LeftBraceToken { get; }
 
@@ -15,6 +15,11 @@ namespace DSharp.Syntax
             LeftBraceToken = leftBraceToken;
             Statements = statements;
             RightBraceToken = rightBraceToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitBlockStatement(this);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class ExpressionSyntax : SyntaxNode
+    public abstract class ExpressionSyntax : SyntaxNode
     {
     }
 }

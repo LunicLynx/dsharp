@@ -2,7 +2,7 @@
 
 namespace DSharp.Syntax
 {
-    class ClassSyntaxNode : SyntaxNode
+    public class ClassSyntaxNode : SyntaxNode
     {
         public Token ClassToken { get; }
 
@@ -21,6 +21,11 @@ namespace DSharp.Syntax
             LeftBraceToken = leftBraceToken;
             Members = members;
             RightBraceToken = rightBraceToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitClass(this);
         }
     }
 }

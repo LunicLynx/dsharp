@@ -1,6 +1,6 @@
 ﻿namespace DSharp.Syntax
 {
-    internal class ParameterSyntax : SyntaxNode
+    public class ParameterSyntax : SyntaxNode
     {
         public SyntaxNode TypeName { get; }
 
@@ -10,6 +10,11 @@
         {
             TypeName = typeName;
             IdentifierToken = identifierToken;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitParameter(this);
         }
     }
 }

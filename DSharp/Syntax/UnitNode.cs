@@ -2,7 +2,7 @@
 
 namespace DSharp.Syntax
 {
-    class UnitNode : SyntaxNode
+    public class UnitNode : SyntaxNode
     {
         public IList<UsingNode> Usings { get; }
 
@@ -12,6 +12,11 @@ namespace DSharp.Syntax
         {
             Usings = usings;
             Members = members;
+        }
+
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitUnit(this);
         }
     }
 }
