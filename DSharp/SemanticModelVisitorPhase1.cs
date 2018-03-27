@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using DSharp.Syntax;
 
 namespace DSharp
@@ -53,8 +54,11 @@ namespace DSharp
             }
         }
 
+        private ExpressionModel _expression;
+
         public override void VisitExpressionStatement(ExpressionStatementSyntax expressionStatementSyntax)
         {
+            new ExpressionStatementModel(_expression);
             expressionStatementSyntax.Expression.Accept(this);
         }
 
@@ -137,6 +141,9 @@ namespace DSharp
         public override void VisitInvokeExpression(InvokeExpressionSyntax invokeExpressionSyntax)
         {
             invokeExpressionSyntax.Owner.Accept(this);
+
+            // if owner is methodgroup
+            // we need to find the right overload
             invokeExpressionSyntax.ArgumentList.Accept(this);
         }
     }
@@ -164,6 +171,21 @@ namespace DSharp
     class ExpressionModel
     {
 
+    }
+
+    class StatementModel
+    {
+
+    }
+
+    class ExpressionStatementModel : StatementModel
+    {
+        public ExpressionModel Expression { get; }
+
+        public ExpressionStatementModel(ExpressionModel expression)
+        {
+            Expression = expression;
+        }
     }
 
     class ConstantExpressionModel : ExpressionModel
