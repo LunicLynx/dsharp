@@ -12,7 +12,7 @@ namespace DSharp
     /// </summary>
     public class SemanticModelVisitorPhase1 : SyntaxVisitor
     {
-        private AssemblyModel _model = new AssemblyModel();
+        public AssemblyModel Model { get; } = new AssemblyModel();
         private string _name;
 
         public override void VisitArgumentList(ArgumentListNode argumentListNode)
@@ -37,7 +37,7 @@ namespace DSharp
             }
         }
 
-        private ClassModel _parent;
+        //private ClassModel _parent;
 
         public override void VisitClass(ClassSyntaxNode classSyntaxNode)
         {
@@ -45,13 +45,13 @@ namespace DSharp
             var name = classSyntaxNode.IdentifierToken.Content;
 
             var classModel = new ClassModel(ns,name);
-            _parent = classModel;
-            _model.Members.Add(classModel);
+            //_parent = classModel;
+            Model.Members.Add(classModel);
 
-            foreach (var member in classSyntaxNode.Members)
+            /*foreach (var member in classSyntaxNode.Members)
             {
                 member.Accept(this);
-            }
+            }*/
         }
 
         private ExpressionModel _expression;
@@ -75,15 +75,16 @@ namespace DSharp
 
         public override void VisitMethodDeclerationSyntax(MethodDeclarationNode methodDeclarationNode)
         {
-            methodDeclarationNode.TypeName.Accept(this);
+            throw new NotImplementedException();
+            //methodDeclarationNode.TypeName.Accept(this);
 
-            var name = methodDeclarationNode.IdentifierToken.Content;
+            //var name = methodDeclarationNode.IdentifierToken.Content;
 
-            var model = new MethodModel(name);
-            _parent.Members.Add(model);
+            //var model = new MethodModel(name);
+            //_parent.Members.Add(model);
             
-            methodDeclarationNode.ParameterList.Accept(this);
-            methodDeclarationNode.Body.Accept(this);
+            //methodDeclarationNode.ParameterList.Accept(this);
+            //methodDeclarationNode.Body.Accept(this);
         }
 
         public override void VisitNamespace(NamespaceSyntaxNode namespaceSyntaxNode)
@@ -148,12 +149,12 @@ namespace DSharp
         }
     }
 
-    internal class AssemblyModel
+    public class AssemblyModel
     {
         public IList<ClassModel> Members { get; } = new List<ClassModel>();
     }
 
-    internal class ClassModel
+    public class ClassModel
     {
         public string Namespace { get; }
         public string Name { get; }
@@ -198,7 +199,7 @@ namespace DSharp
         }
     }
 
-    class MemberModel
+    public class MemberModel
     {
         public string Name { get; }
 
