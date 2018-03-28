@@ -91,7 +91,14 @@ namespace DSharp
 
         public override void VisitClass(ClassSyntaxNode classSyntaxNode)
         {
-            throw new NotImplementedException();
+
+            var name = classSyntaxNode.IdentifierToken.Content;
+            _owner = Resolve(name);
+
+            foreach (var member in classSyntaxNode.Members)
+            {
+                member.Accept(this);
+            }
         }
 
         public override void VisitExpressionStatement(ExpressionStatementSyntax expressionStatementSyntax)
@@ -111,7 +118,17 @@ namespace DSharp
 
         public override void VisitMethodDeclerationSyntax(MethodDeclarationNode methodDeclarationNode)
         {
-            throw new NotImplementedException();
+            methodDeclarationNode.TypeName.Accept(this);
+            var typeName = _name;
+            var methodName = methodDeclarationNode.IdentifierToken.Content;
+            methodDeclarationNode.ParameterList.Accept(this);
+
+
+            var model = new MethodDeclarationModel();
+            _owner.Members.Add(model);
+
+            // phase 3
+            // methodDeclarationNode.Body.Accept(this);
         }
 
         public override void VisitNamespace(NamespaceSyntaxNode namespaceSyntaxNode)
@@ -176,6 +193,16 @@ namespace DSharp
         {
             throw new NotImplementedException();
         }
+
+        public object Resolve(string name)
+        {
+            _scope.Resolve(name);
+        }
+    }
+
+    class MethodDeclarationModel
+    {
+
     }
 
     internal class Scope
@@ -185,12 +212,93 @@ namespace DSharp
 
         public Scope()
         {
-            
+
         }
 
         public Scope(Scope parent)
         {
             Parent = parent;
+        }
+
+        public void Resolve(string name)
+        {
+
+        }
+    }
+}
+
+
+// e.g. all references / other files
+// 1 current scope 
+//  - this file direct match
+//  - other files quallified by this scopes namespace or partial
+//  - all references with the same namespace
+// 2 if scope is namespace and has using and name isn't qualified look up in usings
+// 3 parent scope 
+// repeat 1 - 3
+
+class C
+{
+
+}
+
+namespace E3
+{
+
+    class C
+    {
+
+    }
+}
+
+namespace A
+{
+
+    using B;
+    //using E;
+
+
+
+    class D : C
+    {
+
+    }
+}
+
+namespace A.B.E 
+{
+
+    class C { }
+}
+
+namespace A
+{
+    //class C
+    //{
+
+    //}
+
+    namespace B
+    {
+        class C
+        {
+
+        }
+
+        namespace E
+        {
+            //class C
+            //{
+
+            //}
+        }
+    }
+
+    namespace E2
+    {
+        class C
+        {
+
         }
     }
 }
