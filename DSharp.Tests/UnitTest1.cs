@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Reflection.Metadata.Ecma335;
 using Xunit;
 
 namespace DSharp.Tests
@@ -15,8 +17,16 @@ namespace DSharp.Tests
             */
             // Base of B resolves to A
 
-            var x;
-            var y = x.Resolve("A");
+            // arrange
+            var root = new Scope();
+            root.Add(new ClassModel("", "A"));
+
+            // act
+            var decl = root.Resolve("A");
+
+            // assert
+            var actual = decl.FullName;
+            Assert.Equal("A", actual);
         }
 
         [Fact]
@@ -28,8 +38,16 @@ namespace DSharp.Tests
              */
             // Base of B resolves to A
 
-            var x;
-            var y = x.Resolve("A");
+            // arrange
+            var root = new Scope();
+            var scopeC = root.Add("C");
+
+            // act
+            var decl = scopeC.Resolve("A");
+
+            // assert
+            var actual = decl.FullName;
+            Assert.Equal("A", actual);
         }
 
         [Fact]
@@ -40,13 +58,16 @@ namespace DSharp.Tests
              * namespace C { class D : A.B {} }
              */
 
-
+            // arrange
             var root = new Scope();
             root.Add("A").Add("B");
-            var scope = root.Add("C");
-            var y = scope.Resolve("A.B");
+            var scopeC = root.Add("C");
 
-            var actual = y.FullName;
+            // act
+            var decl = scopeC.Resolve("A.B");
+
+            // assert
+            var actual = decl.FullName;
             Assert.Equal("A.B", actual);
         }
 
@@ -57,8 +78,18 @@ namespace DSharp.Tests
              * namespace A { class B {} }
              * namespace C { using A; class D : B {} }
              */
-            var x;
-            var y = x.Resolve("B");
+
+            // arrange
+            var root = new Scope();
+            var scopeA = root.Add("A");
+            var scopeC = root.Add("C");
+
+            // act
+            var decl = scopeC.Resolve("B");
+
+            // assert
+            var actual = decl.FullName;
+            Assert.Equal("A.B", actual);
         }
 
         [Fact]
@@ -97,12 +128,61 @@ namespace DSharp.Tests
             var x;
             var y = x.Resolve("B.C");
         }
+
+        [Fact]
+        public void ResolveWithLocalUsingBeforeParent()
+        {
+            // use using before fall through to parent
+            /*
+             * namespace A { class B { } }
+             * namespace C { class B { } namespace D { using A; class E : B { } } }
+             */
+
+            // Resolve B from inside D finds A.B before C.B
+        }
+    }
+
+    public class Scope
+    {
+
+        public Scope()
+        {
+            
+        }
+
+        public Scope(Scope parent)
+        {
+            
+        }
+
+        public Scope Add(string name)
+        {
+            return null;
+        }
+
+
+        public IDeclaration Resolve(string name)
+        {
+            return null;
+        }
+    }
+
+    public interface IDeclaration
+    {
+        string FullName { get; }
+    }
+
+    public class ClassModel : IDeclaration
+    {
+        public string Namespace { get; }
+        public string Name { get; }
+
+        public string FullName => $"{Namespace}.{Name}";
+
+        public ClassModel(string @namespace, string name)
+        {
+            Namespace = @namespace;
+            Name = name;
+        }
     }
 }
-
-
-
-namespace A { class B { public class C { } } }
-namespace D.E { using A; class F : B.C { } }
-
-
