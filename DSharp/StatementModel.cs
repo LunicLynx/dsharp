@@ -1,0 +1,7 @@
+﻿namespace DSharp
+{
+    class StatementModel
+    {
+
+    }
+}

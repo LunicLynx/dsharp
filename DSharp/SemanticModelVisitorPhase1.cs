@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using DSharp.Syntax;
 
@@ -12,8 +11,13 @@ namespace DSharp
     /// </summary>
     public class SemanticModelVisitorPhase1 : SyntaxVisitor
     {
-        public AssemblyModel Model { get; } = new AssemblyModel();
+        public AssemblyModel Assembly { get; }
         private string _name;
+
+        public SemanticModelVisitorPhase1(AssemblyModel assembly)
+        {
+            Assembly = assembly;
+        }
 
         public override void VisitArgumentList(ArgumentListNode argumentListNode)
         {
@@ -44,9 +48,9 @@ namespace DSharp
             var ns = _name;
             var name = classSyntaxNode.IdentifierToken.Content;
 
-            var classModel = new ClassModel(ns,name);
+            var classModel = new ClassModel(ns, name);
             //_parent = classModel;
-            Model.Members.Add(classModel);
+            Assembly.Members.Add(classModel);
 
             /*foreach (var member in classSyntaxNode.Members)
             {
@@ -82,7 +86,7 @@ namespace DSharp
 
             //var model = new MethodModel(name);
             //_parent.Members.Add(model);
-            
+
             //methodDeclarationNode.ParameterList.Accept(this);
             //methodDeclarationNode.Body.Accept(this);
         }
@@ -120,9 +124,11 @@ namespace DSharp
 
         public override void VisitStringLiteral(StringLiteralSyntax stringLiteralSyntax)
         {
-            var stringLiteral = stringLiteralSyntax.StringLiteralToken.Content;
-            var str = stringLiteral.Substring(1, stringLiteral.Length -2);
-            new ConstantExpressionModel(str);
+            //var stringLiteral = stringLiteralSyntax.StringLiteralToken.Content;
+            //var str = stringLiteral.Substring(1, stringLiteral.Length - 2);
+
+            //new ConstantExpressionModel(str);
+            throw new NotImplementedException();
         }
 
         public override void VisitUnit(UnitNode unitNode)
@@ -146,74 +152,6 @@ namespace DSharp
             // if owner is methodgroup
             // we need to find the right overload
             invokeExpressionSyntax.ArgumentList.Accept(this);
-        }
-    }
-
-    public class AssemblyModel
-    {
-        public IList<ClassModel> Members { get; } = new List<ClassModel>();
-    }
-
-    public class ClassModel
-    {
-        public string Namespace { get; }
-        public string Name { get; }
-        public string Fullname => Namespace + "." + Name;
-
-        public IList<MemberModel> Members { get; } = new List<MemberModel>();
-
-        public ClassModel(string ns, string name)
-        {
-            Namespace = ns;
-            Name = name;
-        }
-    }
-
-    class ExpressionModel
-    {
-
-    }
-
-    class StatementModel
-    {
-
-    }
-
-    class ExpressionStatementModel : StatementModel
-    {
-        public ExpressionModel Expression { get; }
-
-        public ExpressionStatementModel(ExpressionModel expression)
-        {
-            Expression = expression;
-        }
-    }
-
-    class ConstantExpressionModel : ExpressionModel
-    {
-        public object Value { get; }
-
-        public ConstantExpressionModel(object value)
-        {
-            Value = value;
-        }
-    }
-
-    public class MemberModel
-    {
-        public string Name { get; }
-
-        public MemberModel(string name)
-        {
-            Name = name;
-        }
-    }
-
-    class MethodModel : MemberModel
-    {
-        public MethodModel(string name) : base(name)
-        {
-            
         }
     }
 }

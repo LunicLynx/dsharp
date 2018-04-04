@@ -19,15 +19,16 @@ namespace DSharp.Tests
             // Base of B resolves to A
 
             // arrange
-            var root = new Scope();
-            root.Add(new ClassModel("", "A"));
+            var assembly = new AssemblyModel(new Workspace(), "X");
+            var expected = new ClassModel("", "A");
+            assembly.Members.Add(expected);
+            var root = new Scope(assembly);
 
             // act
-            var decl = root.Resolve("A");
+            var actual = root.Resolve("A");
 
             // assert
-            var actual = decl.FullName;
-            Assert.Equal("A", actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -40,15 +41,17 @@ namespace DSharp.Tests
             // Base of B resolves to A
 
             // arrange
-            var root = new Scope();
+            var assembly = new AssemblyModel(new Workspace(), "X");
+            var expected = new ClassModel("", "A");
+            assembly.Members.Add(expected);
+            var root = new Scope(assembly);
             var scopeC = root.Add("C");
 
             // act
-            var decl = scopeC.Resolve("A");
+            var actual = scopeC.Resolve("A");
 
             // assert
-            var actual = decl.FullName;
-            Assert.Equal("A", actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -60,16 +63,17 @@ namespace DSharp.Tests
              */
 
             // arrange
-            var root = new Scope();
-            root.Add("A").Add("B");
+            var assembly = new AssemblyModel(new Workspace(), "X");
+            var expected = new ClassModel("A", "B");
+            assembly.Members.Add(expected);
+            var root = new Scope(assembly);
             var scopeC = root.Add("C");
 
             // act
-            var decl = scopeC.Resolve("A.B");
+            var actual = scopeC.Resolve("A.B");
 
             // assert
-            var actual = decl.FullName;
-            Assert.Equal("A.B", actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -77,20 +81,23 @@ namespace DSharp.Tests
         {
             /*
              * namespace A { class B {} }
-             * namespace C { using A; class D : B {} }
+             * namespace C { using A; }
+             * resolve B from C finds A.B
              */
 
             // arrange
-            var root = new Scope();
-            var scopeA = root.Add("A");
+            var assembly = new AssemblyModel(new Workspace(), "X");
+            var expected = new ClassModel("A", "B");
+            assembly.Members.Add(expected);
+            var root = new Scope(assembly);
             var scopeC = root.Add("C");
+            scopeC.Usings.Add("A");
 
             // act
-            var decl = scopeC.Resolve("B");
+            var actual = scopeC.Resolve("B");
 
             // assert
-            var actual = decl.FullName;
-            Assert.Equal("A.B", actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -102,8 +109,19 @@ namespace DSharp.Tests
              */
             // B cant be resolved qualified names are not combined with usings
 
-            var x;
-            var y = x.Resolve("B.C");
+            // arrange
+            var @class = new ClassModel("A.B", "C");
+            var assembly = new AssemblyModel(new Workspace(), "X");
+            assembly.Members.Add(@class);
+            var root = new Scope(assembly);
+            var scopeE = root.Add("D").Add("E");
+            scopeE.Usings.Add("A");
+
+            // act
+            var actual = scopeE.Resolve("B");
+
+            // assert
+            Assert.Null(actual);
         }
 
         [Fact]
@@ -115,8 +133,8 @@ namespace DSharp.Tests
              */
             // B cant be resolved qualified names are not combined with usings
 
-            var x;
-            var y = x.Resolve("B.C");
+            //var x;
+            //var y = x.Resolve("B.C");
         }
 
         [Fact]
@@ -126,8 +144,8 @@ namespace DSharp.Tests
              * namespace A.B { class C { } }
              * namespace A.D { class E : B.C { } }
              */
-            var x;
-            var y = x.Resolve("B.C");
+            //var x;
+            //var y = x.Resolve("B.C");
         }
 
         [Fact]
@@ -148,7 +166,7 @@ namespace DSharp.Tests
             /*
              * assembly A { class B { } }
              * assembly C { ref A; class B { } }
-             * resolve B from C finds C.B
+             * resolve B from global, C finds C.B
              */
         }
 
@@ -159,7 +177,7 @@ namespace DSharp.Tests
              * assembly A { class B { } }
              * assembly C { class B { } }
              * assembly D { ref A; ref C; }
-             * resolve B from D ambiguity A.B and C.B
+             * resolve B from global, D ambiguity B, A and B, C
              */
         }
 
@@ -189,7 +207,7 @@ namespace DSharp.Tests
             /*
              * assembly A { class B { } }
              * assembly C { ref A; namespace D { class E : B { } } }
-             * resolve B from D, C finds A.B, A
+             * resolve B from D, C finds B, A
              */
         }
 
@@ -202,16 +220,7 @@ namespace DSharp.Tests
              * resolve C from B.E, D finds B.C, A
              */
 
-            // 1. exists B.E.[C], D
-            // 2. exists B.[C], D
-            // 3. exists [C], D
-            // 4. exists only one B.E.[C] in any reference
-            // 5. exists only one B.[C] in any reference -> found
-
-            // 1. exists in current scope
-            // 2. 
-            // 2. exists in parent scope
-            // 3. exists 
+            
         }
 
         [Fact]
@@ -234,49 +243,37 @@ namespace DSharp.Tests
              * resolve C.X from B is ambiguise between
              */
         }
-    }
 
-    public class Scope
-    {
-
-        public Scope()
+        [Fact]
+        public void ResolveFromReferenceBeforeUsing()
         {
-
-        }
-
-        public Scope(Scope parent)
-        {
-
-        }
-
-        public Scope Add(string name)
-        {
-            return null;
-        }
-
-
-        public IDeclaration Resolve(string name)
-        {
-            return null;
+            /*
+             * assembly A { namespace B { class C { } } }
+             * assembly D { ref A; namespace E { class C { } } namespace B { using E; class G : C { } } }
+             * resolve C from B, D finds B.C, A
+             */
         }
     }
 
-    public interface IDeclaration
+    // 1. exists B.E.[C], D
+    // 2. exists B.[C], D // incorrecT ?
+    // 3. exists [C], D
+    // 4. exists only one B.E.[C] in any reference
+    // 5. exists only one B.[C] in any reference -> found
+
+    public class ClassModelTests
     {
-        string FullName { get; }
-    }
-
-    public class ClassModel : IDeclaration
-    {
-        public string Namespace { get; }
-        public string Name { get; }
-
-        public string FullName => $"{Namespace}.{Name}";
-
-        public ClassModel(string @namespace, string name)
+        [Fact]
+        public void ComputeFullNameWithoutNamespace()
         {
-            Namespace = @namespace;
-            Name = name;
+            // arrange
+            var @class = new ClassModel("", "A");
+
+            // act
+            var actual = @class.FullName;
+
+            // assert
+            Assert.Equal("A", actual);
         }
     }
 }
